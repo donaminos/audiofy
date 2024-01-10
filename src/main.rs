@@ -1,3 +1,4 @@
 fn main() {
-    println!("Hello, world!");
+    let msg = "Audiofy: turn your favorite articles into a podcast! 🚀";
+    println!("{}", msg); 
 }
