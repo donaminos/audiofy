@@ -6,3 +6,4 @@ Welcome to Audiofy! This project is a part of a series of blog posts aimed at in
 **Articles:** 
 
 - [Part 1](https://www.sadry.dev/articles/intro-to-rust-for-js-devs-part-1)
+- [Part 2](https://www.sadry.dev/articles/intro-to-rust-for-js-devs-part-2)
