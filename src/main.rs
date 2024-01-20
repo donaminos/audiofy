@@ -16,6 +16,39 @@ fn is_valid_url(url: &str) -> bool {
     result.is_ok() // Without ; at end, the value is returned automatically. It's a shorthand for return result.is_ok();
 }
 
+struct Article {
+    url: String,
+    title: Option<String>,
+    content: Option<String>,
+}
+
+impl Article {
+    fn new(url: String) -> Article {
+        Article {
+            url: url,
+            title: None,
+            content: None,
+        }
+    }
+}
+
+trait Describable {
+    fn describe(&self) -> String;
+}
+
+impl Describable for Article {
+    fn describe(&self) -> String {
+        match &self.title {
+            Some(title) => {
+                format!("{}", title)
+            }
+            None => {
+                format!("No title found!")
+            }
+        }
+    }
+}
+
 fn parse_html(html: &str) {
     // Parse the HTML
     let document = Html::parse_document(html);
