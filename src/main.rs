@@ -1,6 +1,7 @@
 use reqwest;
 use scraper::{Html, Selector};
 use std::env::args;
+use std::fmt;
 use tokio;
 use url::Url;
 
@@ -9,6 +10,18 @@ enum ValidationError {
     UnreachableResource, // Error status from get request
     ArticleNotFound,     // <article> not found
     TitleNotFound,       // <h1> not found
+}
+
+impl fmt::Debug for ValidationError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Custom formatting logic here
+        match self {
+            ValidationError::InvalidUrlFormat => write!(f, "Invalid URL Format"),
+            ValidationError::UnreachableResource => write!(f, "Unreachable Resource"),
+            ValidationError::TitleNotFound => write!(f, "Title Not Found"),
+            ValidationError::ArticleNotFound => write!(f, "Article Not Found"),
+        }
+    }
 }
 
 fn is_valid_url(url: &str) -> bool {
@@ -84,16 +97,30 @@ async fn fetch_url(url: &str) {
     }
 }
 
+fn get_article(url: String) -> Result<Article, ValidationError> {
+    if is_valid_url(&url) {
+        let article = Article::new(url);
+
+        Ok(article)
+    } else {
+        Err(ValidationError::InvalidUrlFormat)
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error> {
     let args: Vec<String> = args().collect();
     println!("Audiofy: Transform your favorites articles to a podcast 🚀");
 
     for (index, arg) in args.iter().skip(1).enumerate() {
-        if is_valid_url(arg) {
-            fetch_url(arg).await;
-        } else {
-            println!("- Invalid argument at index {}: {}", index, arg);
+        let url = arg.to_string();
+        match get_article(url) {
+            Ok(article) => {
+                println!("Article created");
+            }
+            Err(e) => {
+                print!("Error {:?}", e);
+            }
         }
     }
 
