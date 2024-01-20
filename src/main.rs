@@ -1,8 +1,15 @@
 use reqwest;
+use scraper::{Html, Selector};
 use std::env::args;
 use tokio;
 use url::Url;
-use scraper::{Html, Selector};
+
+enum ValidationError {
+    InvalidUrlFormat,    // Not a valid URL
+    UnreachableResource, // Error status from get request
+    ArticleNotFound,     // <article> not found
+    TitleNotFound,       // <h1> not found
+}
 
 fn is_valid_url(url: &str) -> bool {
     let result = Url::parse(url);
