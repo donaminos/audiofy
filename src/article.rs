@@ -63,17 +63,14 @@ fn parse_html(html: &str) -> Result<(String, String), ValidationError> {
 }
 
 async fn fetch_url(url: &str) -> Result<String, ValidationError> {
-    println!("Fetching URL {} in progress...", url);
+    println!("⏳ Fetching URL: {}", url);
     let response = reqwest::get(url).await;
 
     match response {
         Ok(res) => {
             let url_body = res.text().await;
             match url_body {
-                Ok(html) => {
-                    println!("✅ Article fetched!");
-                    Ok(html)
-                }
+                Ok(html) => Ok(html),
                 Err(_) => Err(ValidationError::UnreachableResource),
             }
         }
