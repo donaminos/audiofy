@@ -16,7 +16,7 @@ impl Article {
         };
 
         let fetched_article = fetch_url(&article.url).await?;
-        let (title, content) = parse_html(&fetched_article);
+        let (title, content) = parse_html(&fetched_article)?;
         article.title = Some(title);
         article.content = Some(content);
 
@@ -41,18 +41,25 @@ impl Describable for Article {
     }
 }
 
-fn parse_html(html: &str) -> (String, String) {
+fn parse_html(html: &str) -> Result<(String, String), ValidationError> {
     let document = Html::parse_document(html);
 
-    let h1_selector = Selector::parse("h1").unwrap();
-    let h1 = document.select(&h1_selector).next().unwrap();
+    let h1_selector = Selector::parse("h1").map_err(|_| ValidationError::TitleNotFound)?;
+    let h1 = document
+        .select(&h1_selector)
+        .next()
+        .ok_or(ValidationError::TitleNotFound)?;
     let h1_content = h1.text().collect::<String>();
 
-    let article_selector = Selector::parse("article").unwrap();
-    let article = document.select(&article_selector).next().unwrap();
+    let article_selector =
+        Selector::parse("article").map_err(|_| ValidationError::ArticleNotFound)?;
+    let article = document
+        .select(&article_selector)
+        .next()
+        .ok_or(ValidationError::ArticleNotFound)?;
     let article_content = article.text().collect::<String>();
 
-    (h1_content, article_content)
+    Ok((h1_content, article_content))
 }
 
 async fn fetch_url(url: &str) -> Result<String, ValidationError> {
