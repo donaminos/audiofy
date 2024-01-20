@@ -1,8 +1,8 @@
-# Intro to Rust for JS developers - Part 1
+# Intro to Rust for JS developers - Part 3
 
 Welcome to Audiofy! This project is a part of a series of blog posts aimed at introducing Rust to JavaScript developers. Audiofy leverages the power of OpenAI's language models to transform articles from URLs into speech.
 
 
-#### Current branch: `intro-to-rust-for-js-devs-part-1`
+#### Current branch: `https://github.com/donaminos/audiofy/tree/intro-to-rust-for-js-devs-part-3`
 
-This branch corresponds to the work done in the first article [Part 1](https://www.sadry.dev/articles/intro-to-rust-for-js-devs-part-1)
+This branch corresponds to the work done in the first article [Part 3](https://www.sadry.dev/articles/intro-to-rust-for-js-devs-part-3)
