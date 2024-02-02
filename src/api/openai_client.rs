@@ -1,6 +1,7 @@
 use dotenv::dotenv;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE};
 use reqwest::Client;
+use serde_json::json;
 use std::env;
 
 pub struct OpenAIClient {
@@ -40,6 +41,26 @@ impl OpenAIClient {
     }
 
     pub async fn text_to_speech(&self, text: String, output_path: &str) {
-        // TODO
+        let request_body = json!({
+            "model": "tts-1",
+            "input": text,
+            "voice": "alloy"
+        });
+
+        let req = self
+            .http
+            .post(&self.url)
+            .headers(self.headers.clone())
+            .json(&request_body)
+            .send();
+
+        match req.await {
+            Ok(response) => {
+                let mp3 = response.bytes().await.unwrap();
+            }
+            Err(e) => {
+                println!("❌ Failed to generate audio: {}", e);
+            }
+        }
     }
 }
