@@ -6,6 +6,7 @@ use article::{get_article, Describable};
 use reqwest;
 use std::env;
 use tokio;
+use api::openai_client::OpenAIClient;
 
 #[tokio::main]
 async fn main() -> Result<(), reqwest::Error> {
@@ -29,8 +30,15 @@ async fn main() -> Result<(), reqwest::Error> {
         match get_article(url).await {
             Ok(article) => {
                 println!("✅ Article fetched!");
-                println!("⏩ Title: {}", article.describe());
+                let article_title = article.describe();
+                println!("⏩ Title: {}", article_title);
                 println!("🎤 Audiofy...");
+
+                let client = OpenAIClient::new();
+
+                let output_path = format!("output/{}.mp3", article_title);
+                // For testing purpose: we send the title only at the moment
+                client.text_to_speech(article_title, &output_path).await;
             }
             Err(e) => {
                 print!("❌ Failed to process argument at index {}: {:?}", index, e);
