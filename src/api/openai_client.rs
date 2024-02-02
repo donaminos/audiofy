@@ -3,6 +3,8 @@ use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE};
 use reqwest::Client;
 use serde_json::json;
 use std::env;
+use std::fs::File;
+use std::io::Write;
 
 pub struct OpenAIClient {
     url: String,
@@ -26,11 +28,11 @@ impl OpenAIClient {
         let authorization = format!("Bearer {}", api_key);
         custom_headers.insert(
             AUTHORIZATION,
-            HeaderValue::from_str(&authorization).expect("Could not get org"),
+            HeaderValue::from_str(&authorization).expect("Could not get Authorization header!"),
         );
         custom_headers.insert(
             "OpenAI-Organization",
-            HeaderValue::from_str(&api_org).expect("Could not get org"),
+            HeaderValue::from_str(&api_org).expect("Could not get OpenAI-Organization header!"),
         );
 
         OpenAIClient {
@@ -57,6 +59,16 @@ impl OpenAIClient {
         match req.await {
             Ok(response) => {
                 let mp3 = response.bytes().await.unwrap();
+
+                match File::create(output_path) {
+                    Ok(mut file) => {
+                        file.write_all(&mp3).unwrap();
+                        println!("Audio file saved ✔️");
+                    }
+                    Err(_) => {
+                        println!("❌ Failed to save audio file to  {}", output_path);
+                    }
+                }
             }
             Err(e) => {
                 println!("❌ Failed to generate audio: {}", e);
