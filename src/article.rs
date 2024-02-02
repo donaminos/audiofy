@@ -22,6 +22,10 @@ impl Article {
 
         return Ok(article);
     }
+
+    pub fn get_content(&self) -> Option<String> {
+        self.content.clone()
+    }
 }
 
 pub trait Describable {
