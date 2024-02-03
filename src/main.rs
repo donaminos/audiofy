@@ -34,10 +34,19 @@ async fn main() -> Result<(), reqwest::Error> {
                 let article_title = article.describe();
                 println!("⏩ Title: {}", article_title);
 
-                audiofy(article_title).await;
+                let output_path = format!("output/{}.mp3", article_title);
+
+                match article.get_content() {
+                    Some(article_content) => {
+                        audiofy(article_content, &output_path).await;
+                    }
+                    None => {
+                        println!("❌ Article has no conetnt!");
+                    }
+                }
             }
             Err(e) => {
-                print!("❌ Failed to process argument at index {}: {:?}", index, e);
+                println!("❌ Failed to process argument at index {}: {:?}", index, e);
             }
         }
     }

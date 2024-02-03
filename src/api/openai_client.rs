@@ -63,7 +63,7 @@ impl OpenAIClient {
                 match File::create(output_path) {
                     Ok(mut file) => {
                         file.write_all(&mp3).unwrap();
-                        println!("Audio file saved ✔️");
+                        println!("✔️ Audio file saved to {}", output_path);
                     }
                     Err(_) => {
                         println!("❌ Failed to save audio file to  {}", output_path);
