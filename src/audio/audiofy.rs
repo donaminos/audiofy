@@ -3,14 +3,13 @@ use std::fs::{create_dir, read_dir, remove_dir_all};
 use std::io;
 use std::process::Command;
 
-const API_LIMIT: usize = 4096;
 const OUTPUT_DIR: &str = "output";
 const TEMP_DIR: &str = "temp";
 
-fn split_into_chunks(text: &str) -> Vec<String> {
+fn split_into_chunks(text: &str, limit: usize) -> Vec<String> {
     text.chars()
         .collect::<Vec<char>>()
-        .chunks(API_LIMIT)
+        .chunks(limit)
         .map(|chunk| chunk.iter().collect::<String>())
         .collect()
 }
@@ -34,7 +33,7 @@ fn list_file_paths_in_directory(path: &str) -> io::Result<Vec<String>> {
 fn merge_audio_chunks(input_path: &str, output_path: &str) {
     let files = list_file_paths_in_directory(input_path).unwrap();
     let concat_command_arg = format!("concat:{}", files.join("|"));
-    
+
     Command::new("ffmpeg")
         .arg("-i")
         .arg(concat_command_arg)
@@ -49,7 +48,7 @@ pub async fn audiofy(text: String, output_path: &str) {
     println!("🎤 Audiofy...");
 
     let client = OpenAIClient::new();
-    let text_chunks = split_into_chunks(&text);
+    let text_chunks = split_into_chunks(&text, client.payload_limit);
     let temp_path = format!("{}/{}", OUTPUT_DIR, TEMP_DIR);
 
     create_dir(&temp_path).expect("Failed to create tmp directory");

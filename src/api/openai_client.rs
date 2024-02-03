@@ -6,10 +6,13 @@ use std::env;
 use std::fs::File;
 use std::io::Write;
 
+const API_LIMIT: usize = 4096;
+
 pub struct OpenAIClient {
     url: String,
     headers: HeaderMap,
     http: Client,
+    pub payload_limit: usize,
 }
 
 impl OpenAIClient {
@@ -39,10 +42,22 @@ impl OpenAIClient {
             url: api_url,
             headers: custom_headers,
             http: http_client,
+            payload_limit: API_LIMIT,
         }
     }
 
+    fn is_text_within_limit(&self, text: &str) -> bool {
+        text.chars().count() <= self.payload_limit
+    }
+
     pub async fn text_to_speech(&self, text: String, output_path: &str) {
+        if !self.is_text_within_limit(&text) {
+            panic!(
+                "Text exceeds the maximum allowed character ount of {}",
+                self.payload_limit
+            );
+        }
+
         let request_body = json!({
             "model": "tts-1",
             "input": text,
