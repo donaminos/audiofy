@@ -1,7 +1,8 @@
 use crate::api::openai_client::OpenAIClient;
-use std::fs::{create_dir, read_dir, remove_dir_all};
+use std::fs::{create_dir_all, read_dir, remove_dir_all};
 use std::io;
 use std::process::Command;
+extern crate dirs;
 
 const OUTPUT_DIR: &str = "output";
 const TEMP_DIR: &str = "temp";
@@ -49,18 +50,26 @@ pub async fn audiofy(text: String, output_path: &str) {
 
     let client = OpenAIClient::new();
     let text_chunks = split_into_chunks(&text, client.payload_limit);
+    let user_home_dir = dirs::home_dir().expect("Unable to get home directory"); 
+    
     let temp_path = format!("{}/{}", OUTPUT_DIR, TEMP_DIR);
+    let absolute_temp_path = user_home_dir.join(temp_path);
+    let absolute_temp_path_str = absolute_temp_path.to_str().unwrap();
+    
 
-    create_dir(&temp_path).expect("Failed to create tmp directory");
+    create_dir_all(&absolute_temp_path).expect("Failed to create tmp directory");
 
     println!("=> {} chunks to transform:", text_chunks.len());
 
     for (i, chunk) in text_chunks.iter().enumerate() {
         println!("Processing chunk at index {}...", i);
-        let chunk_path = format!("{}/chunk_{}.mp3", temp_path, i);
+        let chunk_path = format!("{}/chunk_{}.mp3", absolute_temp_path_str, i);
         client.text_to_speech(chunk.to_string(), &chunk_path).await;
     }
 
-    merge_audio_chunks(&temp_path, &output_path);
-    remove_dir_all(&temp_path).expect("Failed to remove directory");
+    let absolute_outrput_path = user_home_dir.join(output_path);
+    let absolute_outrput_path_str = absolute_outrput_path.to_str().unwrap();
+    
+    merge_audio_chunks(&absolute_temp_path_str, &absolute_outrput_path_str);
+    remove_dir_all(&absolute_temp_path_str).expect("Failed to remove directory");
 }
